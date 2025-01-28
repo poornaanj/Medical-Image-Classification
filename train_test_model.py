@@ -1,4 +1,4 @@
-import tqdm
+from tqdm import tqdm
 import torch
 import copy
 import matplotlib.pyplot as plt
