@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 #training loop with early stop
 
-def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_function, optimizer, accuracy_function, epoches, early_stop, device=device):
+def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_function, optimizer, accuracy_function, epoches, early_stop, device):
 
   train_losses = []
   train_accuracies = []
@@ -91,9 +91,9 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
 
   return train_losses, train_accuracies, val_losses, val_accuracies, best_model_weights
 
-def plot_loss_accuracy(train_losses,val_losses, train_accuracies, val_accuracies, fig_name):
+def plot_loss_accuracy(train_losses,val_losses, train_accuracies, val_accuracies, fig_name:str):
 
-    plt.figure(figsize=(12, 5))
+    plt.figure(figsize=(15, 5))
   
     plt.subplot(1,2,1)
     plt.plot(train_losses,label="Train loss")
