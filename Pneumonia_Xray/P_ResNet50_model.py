@@ -1,12 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import datasets, transforms
+from torchvision import datasets, models
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy
 from torchmetrics.classification import Accuracy
-from torchinfo import summary
+from train_test_model import train_model_with_early_stop, plot_loss_accuracy
 
 #setting up device
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -15,12 +14,10 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 train_dir = ""
 test_dir = ""
 
-#defining a transform
-transform = transforms.Compose([
-    transforms.Resize(size=(224,224)),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.4823, 0.4823, 0.4823], std=[0.2347, 0.2347, 0.2347])
-])
+#loading the pre-trained ResNet50 model
+weights = models.ResNet50_Weights.DEFAULT
+
+transform = weights.transforms()
 
 #loading data
 data = datasets.ImageFolder(root=train_dir,
@@ -36,11 +33,6 @@ train_indices, val_indices = train_test_split(indices, test_size=0.2, random_sta
 
 train_data = Subset(data, train_indices)
 val_data = Subset(data, val_indices)
-
-print(f"Classes: {test_data.class_to_idx}")
-print(f"Train data size : {len(train_data)}")
-print(f"Validation data size : {len(val_data)}")
-print(f"Test data size : {len(test_data)}")
 
 #dataloaders
 num_workers = 4
@@ -59,75 +51,26 @@ test_dataLoader = DataLoader(dataset=test_data,
                              num_workers=num_workers
                              )
 
-images, labels = next(iter(train_dataLoader))
-print(f"Batch shape : {images.shape}")
-print(f"Labels shape : {labels.shape}")
+#initiating the model
+model = models.resnet50(weights=weights).to(device)
 
-#CNN model architecture
+#freezing the model
+for params in model.parameters():
+  params.requires_grad = False
 
-class CNNModel_V0(nn.Module):
+#updating the classifer
+torch.manual_seed(42)
+torch.cuda.manual_seed(42)
+output_shape = 2
+model.fc = nn.Linear(in_features=model.fc.in_features,
+                     out_features=output_shape).to(device)
 
-  def __init__(self):
-    super().__init__()
-
-    self.conv_block_1 = nn.Sequential(
-        nn.Conv2d(in_channels=3,
-                  out_channels=16,
-                  kernel_size=3,
-                  stride=2,
-                  padding=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2,
-                     stride=2)
-    )
-
-    self.conv_block_2 = nn.Sequential(
-        nn.Conv2d(in_channels=16,
-                  out_channels=32,
-                  kernel_size=3,
-                  stride=2,
-                  padding=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2,
-                     stride=2)
-    )
-
-    self.conv_block_3 = nn.Sequential(
-        nn.Conv2d(in_channels=32,
-                  out_channels=64,
-                  kernel_size=3,
-                  stride=2,
-                  padding=1),
-        nn.ReLU(),
-        nn.MaxPool2d(kernel_size=2,
-                     stride=2)
-    )
-
-    self.classifier = nn.Sequential(
-        nn.Flatten(),
-        nn.Linear(in_features=64*3*3,
-                  out_features=2)
-    )
-
-  def forward(self, x):
-    return self.classifier(self.conv_block_3(self.conv_block_2(self.conv_block_1(x))))
-  
-#initiating a model
-model_0 = CNNModel_V0().to(device)
-
-#obtaining a summary of the model
-summary(model_0,input_size=[1,3,224,224])
-
-#loss function and optimizer
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model_0.parameters(), lr=0.001)
+optimizer = optim.Adam(params = model.parameters(),
+                             lr=0.001)
+acc_fn = Accuracy(task="multiclass", num_classes=2).to(device)
 
-# accuracy function
-acc_fn = Accuracy(task="multiclass", num_classes=2)
-acc_fn.to(device)
-
-#training model
-train_losses, train_accuracies, val_losses, val_accuracies, model_weights = train_model_with_early_stop(model=model_0,
+train_losses, train_accuracies, val_losses, val_accuracies, model_weights = train_model_with_early_stop(model=model,
                                                                                          train_dataLoader=train_dataLoader,
                                                                                          val_dataLoader=val_dataLoader,
                                                                                          loss_function=loss_fn,
@@ -141,4 +84,4 @@ plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
-                   fig_name="xray_CNN")
+                   fig_name="xray_resnet50")

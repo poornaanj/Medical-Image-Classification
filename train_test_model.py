@@ -2,15 +2,16 @@ from tqdm import tqdm
 import torch
 import copy
 import matplotlib.pyplot as plt
+from torchmetrics.classification import BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryConfusionMatrix
+import seaborn as sns
 
-#training loop with early stop
 
 def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_function, optimizer, accuracy_function, epoches, early_stop, device):
 
   train_losses = []
   train_accuracies = []
   val_losses = []
-  val_accuracies = []
+  val_accuracies = [] 
 
   best_loss = float('inf')
   best_model_weights = None
@@ -54,6 +55,9 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
     total_val_loss = 0
     total_val_accuracy = 0
 
+    val_predictions = []
+    val_targets = []
+
     with torch.inference_mode():
       for images, labels in val_dataLoader:
 
@@ -62,7 +66,11 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
 
         predictions = model(images)
         loss = loss_function(predictions, labels)
-        accuracy = accuracy_function(torch.argmax(predictions, dim=1),labels)
+        predictions = torch.argmax(predictions, dim=1)
+        accuracy = accuracy_function(predictions,labels)
+
+        val_predictions.append(predictions.cpu())
+        val_targets.append(labels.cpu())
 
         total_val_loss += loss.item()*images.size(0)
         total_val_accuracy += accuracy.item()*images.size(0)
@@ -72,6 +80,9 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
 
       val_losses.append(avg_val_loss)
       val_accuracies.append(avg_val_accuracy)
+
+      val_predictions = torch.cat(val_predictions)
+      val_targets = torch.cat(val_targets)
 
       if avg_val_loss < best_loss:
         best_loss = avg_val_loss
@@ -89,7 +100,7 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
     print(f"Val loss : {avg_val_loss:.4f} | Val accuracy {avg_val_accuracy:.4f}")
 
 
-  return train_losses, train_accuracies, val_losses, val_accuracies, best_model_weights
+  return train_losses, train_accuracies, val_losses, val_accuracies, best_model_weights, val_predictions, val_targets
 
 def plot_loss_accuracy(train_losses,val_losses, train_accuracies, val_accuracies, fig_name:str):
 
@@ -116,3 +127,34 @@ def plot_loss_accuracy(train_losses,val_losses, train_accuracies, val_accuracies
     plt.tight_layout()
     plt.savefig(f"{fig_name}.png")
     plt.close()
+
+def binary_evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
+  
+  recall_metric = BinaryRecall()
+  recall = recall_metric(predictions, target)
+
+  precision_metric = BinaryPrecision()
+  precision = precision_metric(predictions, target)
+
+  f1_metric = BinaryF1Score()
+  f1 = f1_metric(predictions,target)
+
+  print(f"Recall : {recall:.4f}")
+  print(f"Precision : {precision:.4f}")
+  print(f"F1 score : {f1:.4f}")
+
+def binary_confusion_metrics(predictions:torch.tensor, target:torch.tensor, fig_name:str):
+
+  cm_metric = BinaryConfusionMatrix()
+  bcm = cm_metric(predictions,target)
+  # Convert tensor to NumPy array
+  bcm = bcm.numpy()
+
+  # Plot
+  plt.figure(figsize=(5, 4))
+  sns.heatmap(bcm, annot=True, fmt="d", cmap="Blues", xticklabels=["Negative", "Positive"], yticklabels=["Negative", "Positive"])
+  plt.xlabel("Predicted Label")
+  plt.ylabel("True Label")
+  plt.title("Confusion Matrix")
+  plt.savefig(f"{fig_name}.png")
+  plt.close()
