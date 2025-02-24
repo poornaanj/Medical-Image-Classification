@@ -9,7 +9,7 @@ import torch.optim as optim
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy, binary_evaluation_metrics
+from train_test_model import train_model_with_early_stop, plot_loss_accuracy, binary_evaluation_metrics, binary_confusion_metrics
 from torchmetrics.classification import Accuracy
 from torchinfo import summary
 from helper import get_mean_std
@@ -150,7 +150,11 @@ plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
-                   fig_name="xray_CNN")
+                   fig_name="Pneumonia_CNN_loss_curves")
 
 binary_evaluation_metrics(predictions=val_predictions,
                           target=val_targets)
+
+binary_confusion_metrics(predictions=val_predictions,
+                         target=val_targets,
+                         fig_name="Pneumonia_CNN_confusion_matrix")

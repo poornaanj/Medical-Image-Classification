@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -5,7 +10,7 @@ from torchvision import datasets, models
 from torch.utils.data import DataLoader, Subset
 from sklearn.model_selection import train_test_split
 from torchmetrics.classification import Accuracy
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy
+from train_test_model import train_model_with_early_stop, plot_loss_accuracy, binary_evaluation_metrics, binary_confusion_metrics
 
 #setting up device
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -70,7 +75,7 @@ optimizer = optim.Adam(params = model.parameters(),
                              lr=0.001)
 acc_fn = Accuracy(task="multiclass", num_classes=2).to(device)
 
-train_losses, train_accuracies, val_losses, val_accuracies, model_weights = train_model_with_early_stop(model=model,
+train_losses, train_accuracies, val_losses, val_accuracies, model_weights, val_predictions, val_targets = train_model_with_early_stop(model=model,
                                                                                          train_dataLoader=train_dataLoader,
                                                                                          val_dataLoader=val_dataLoader,
                                                                                          loss_function=loss_fn,
@@ -84,4 +89,11 @@ plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
-                   fig_name="xray_resnet50")
+                   fig_name="Pneumonia_ResNet_loss_curves")
+
+binary_evaluation_metrics(predictions=val_predictions,
+                          target=val_targets)
+
+binary_confusion_metrics(predictions=val_predictions,
+                         target=val_targets,
+                         fig_name="Pneumonia_ResNet_confusion_matrix")
