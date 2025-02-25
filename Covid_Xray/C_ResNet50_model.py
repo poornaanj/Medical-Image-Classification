@@ -4,7 +4,7 @@ import torch.optim as optim
 from torchvision import datasets, models
 from torch.utils.data import DataLoader
 from torchmetrics.classification import Accuracy
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy, evaluation_metrics
+from train_test_model import train_model_with_early_stop, plot_loss_accuracy, evaluation_metrics, confusion_metrics
 from torchinfo import summary
 
 #setting up device
@@ -90,7 +90,11 @@ plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
-                   fig_name="covid_resnet50")
+                   fig_name="covid_ResNet50")
 
 evaluation_metrics(predictions=val_predictions,
                    target=val_targets)
+
+confusion_metrics(predictions=val_predictions,
+                  target=val_targets,
+                  fig_name="Covid_ResNet50_confusion_matrix")

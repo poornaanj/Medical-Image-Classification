@@ -182,7 +182,7 @@ def confusion_metrics(predictions:torch.tensor, target:torch.tensor, fig_name:st
 
   #plot
   plt.figure(figsize=(5, 4))
-  sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["Negative", "Positive"], yticklabels=["Negative", "Positive"])
+  sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["0", "1","2","3"], yticklabels=["0", "1","2","3"])
   plt.xlabel("Predicted Label")
   plt.ylabel("True Label")
   plt.title("Confusion Matrix")
