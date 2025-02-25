@@ -2,7 +2,7 @@ from tqdm import tqdm
 import torch
 import copy
 import matplotlib.pyplot as plt
-from torchmetrics.classification import BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryConfusionMatrix
+from torchmetrics.classification import BinaryPrecision, BinaryRecall, BinaryF1Score, BinaryConfusionMatrix, MulticlassPrecision, MulticlassRecall, MulticlassF1Score, MulticlassConfusionMatrix
 import seaborn as sns
 
 
@@ -91,6 +91,7 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
       else:
          early_stop -= 1
          if early_stop == 0:
+          print("Early stopping")
           break
 
 
@@ -143,16 +144,45 @@ def binary_evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
   print(f"Precision : {precision:.4f}")
   print(f"F1 score : {f1:.4f}")
 
+def evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
+
+  recall_metric = MulticlassRecall(num_classes=4, average='macro')
+  recall = recall_metric(predictions, target)
+
+  precision_metric = MulticlassPrecision(num_classes=4, average='macro')
+  precision = precision_metric(predictions, target)
+
+  f1_metric = MulticlassF1Score(num_classes=4, average='macro')
+  f1 = f1_metric(predictions,target)
+
+  print(f"Recall : {recall:.4f}")
+  print(f"Precision : {precision:.4f}")
+  print(f"F1 score : {f1:.4f}")
+
 def binary_confusion_metrics(predictions:torch.tensor, target:torch.tensor, fig_name:str):
 
   cm_metric = BinaryConfusionMatrix()
   bcm = cm_metric(predictions,target)
-  # Convert tensor to NumPy array
   bcm = bcm.numpy()
 
-  # Plot
+  #plot
   plt.figure(figsize=(5, 4))
   sns.heatmap(bcm, annot=True, fmt="d", cmap="Blues", xticklabels=["Negative", "Positive"], yticklabels=["Negative", "Positive"])
+  plt.xlabel("Predicted Label")
+  plt.ylabel("True Label")
+  plt.title("Confusion Matrix")
+  plt.savefig(f"{fig_name}.png")
+  plt.close()
+
+def confusion_metrics(predictions:torch.tensor, target:torch.tensor, fig_name:str):
+
+  cm_metric = MulticlassConfusionMatrix(num_classes=4)
+  cm = cm_metric(predictions,target)
+  cm = cm.numpy()
+
+  #plot
+  plt.figure(figsize=(5, 4))
+  sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["Negative", "Positive"], yticklabels=["Negative", "Positive"])
   plt.xlabel("Predicted Label")
   plt.ylabel("True Label")
   plt.title("Confusion Matrix")

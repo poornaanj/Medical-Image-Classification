@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, models
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
 from torchmetrics.classification import Accuracy
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy
+from train_test_model import train_model_with_early_stop, plot_loss_accuracy, evaluation_metrics
 from torchinfo import summary
 
 #setting up device
@@ -29,6 +29,11 @@ val_data = datasets.ImageFolder(root=train_dir,
 
 test_data = datasets.ImageFolder(root=test_dir,
                                  transform=transform)
+
+print(f"Classes: {test_data.class_to_idx}")
+print(f"Train data size : {len(train_data)}")
+print(f"Validation data size : {len(val_data)}")
+print(f"Test data size : {len(test_data)}")
 
 #dataloaders
 num_workers = 4
@@ -71,7 +76,7 @@ optimizer = optim.Adam(params = model.parameters(),
                              lr=0.001)
 acc_fn = Accuracy(task="multiclass", num_classes=2).to(device)
 
-train_losses, train_accuracies, val_losses, val_accuracies, model_weights = train_model_with_early_stop(model=model,
+train_losses, train_accuracies, val_losses, val_accuracies, model_weights, val_predictions, val_targets = train_model_with_early_stop(model=model,
                                                                                          train_dataLoader=train_dataLoader,
                                                                                          val_dataLoader=val_dataLoader,
                                                                                          loss_function=loss_fn,
@@ -86,3 +91,6 @@ plot_loss_accuracy(train_losses=train_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
                    fig_name="covid_resnet50")
+
+evaluation_metrics(predictions=val_predictions,
+                   target=val_targets)
