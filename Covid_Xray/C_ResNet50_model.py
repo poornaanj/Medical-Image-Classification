@@ -4,7 +4,7 @@ import torch.optim as optim
 from torchvision import datasets, models
 from torch.utils.data import DataLoader
 from torchmetrics.classification import Accuracy
-from train_test_model import train_model_with_early_stop, plot_loss_accuracy, evaluation_metrics, confusion_metrics
+from helper import train_model_with_early_stop, plot_loss_accuracy, evaluation_metrics, confusion_metrics
 from torchinfo import summary
 
 #setting up device
@@ -13,7 +13,6 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 #dataset paths
 train_dir = ""
 val_dir = ""
-test_dir = ""
 
 #loading the pre-trained ResNet50 model
 weights = models.ResNet50_Weights.DEFAULT
@@ -27,13 +26,10 @@ train_data = datasets.ImageFolder(root=train_dir,
 val_data = datasets.ImageFolder(root=train_dir,
                             transform=transform)
 
-test_data = datasets.ImageFolder(root=test_dir,
-                                 transform=transform)
 
-print(f"Classes: {test_data.class_to_idx}")
+print(f"Classes: {train_data.class_to_idx}")
 print(f"Train data size : {len(train_data)}")
 print(f"Validation data size : {len(val_data)}")
-print(f"Test data size : {len(test_data)}")
 
 #dataloaders
 num_workers = 4
@@ -46,11 +42,6 @@ val_dataLoader = DataLoader(dataset=val_data,
                             batch_size=32,
                             shuffle=False,
                             num_workers=num_workers)
-test_dataLoader = DataLoader(dataset=test_data,
-                             batch_size=32,
-                             shuffle=False,
-                             num_workers=num_workers
-                             )
 
 #initiating the model
 model = models.resnet50(weights=weights).to(device)
@@ -74,7 +65,7 @@ summary(model,
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(params = model.parameters(),
                              lr=0.001)
-acc_fn = Accuracy(task="multiclass", num_classes=2).to(device)
+acc_fn = Accuracy(task="multiclass", num_classes=4).to(device)
 
 train_losses, train_accuracies, val_losses, val_accuracies, model_weights, val_predictions, val_targets = train_model_with_early_stop(model=model,
                                                                                          train_dataLoader=train_dataLoader,
@@ -90,7 +81,7 @@ plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,
                    train_accuracies=train_accuracies,
                    val_accuracies=val_accuracies,
-                   fig_name="covid_ResNet50")
+                   fig_name="Covid_ResNet50")
 
 evaluation_metrics(predictions=val_predictions,
                    target=val_targets)
