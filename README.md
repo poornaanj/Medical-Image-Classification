@@ -64,6 +64,10 @@ Test data information and results are as below.
 
 For the multi-class classification scenario, ResNet50 demonstrates better performance over the CNN model, making it a more effective solution for the given problem. The confusion matrix further supports this, showing that ResNet50 achieves a higher number of true positives for pneumonia while significantly reducing misclassifications. This improvement is crucial for ensuring accurate diagnosis, minimizing false positives, and preventing unnecessary treatments. Therefore, ResNet50 emerges as the more reliable and efficient choice for pneumonia detection.
 
+## Conclusion
+
+While pneumonia can be identified through manual X-ray analysis, it can also be caused by conditions like COVID-19, making it difficult to identify the exact cause. Our results suggest that a two-stage system could be more effective: the first stage uses binary classification to achieve high recall and detect most cases of disease, while the second stage uses a multiclass classifier to confirm the diagnosis and guide patients to appropriate treatment. Using a pre-trained model in both stages enhances performance by leveraging prior learning for more accurate results.
+
 ## References
 
 1. https://www.lung.org/lung-health-diseases/lung-disease-lookup/pneumonia/five-facts-you-should-know 
