@@ -107,6 +107,7 @@ def train_model_with_early_stop(model, train_dataLoader, val_dataLoader, loss_fu
 
   #saving the model
   base_dir = os.path.join("..", "Model_weights") 
+  os.makedirs(base_dir, exist_ok=True)
   model_path = os.path.join(base_dir, f"{model_name}.pth")
   torch.save(best_model_weights, model_path)
 

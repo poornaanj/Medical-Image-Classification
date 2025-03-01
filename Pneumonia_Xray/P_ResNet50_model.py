@@ -35,6 +35,11 @@ train_indices, val_indices = train_test_split(indices, test_size=0.2, random_sta
 train_data = Subset(data, train_indices)
 val_data = Subset(data, val_indices)
 
+print("Pneumonia dataset details for ResNet model")
+print(f"Classes: {data.class_to_idx}")
+print(f"Train data size : {len(train_data)}")
+print(f"Validation data size : {len(val_data)}")
+
 #dataloaders
 num_workers = 4
 

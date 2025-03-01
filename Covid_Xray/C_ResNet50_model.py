@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -26,7 +30,7 @@ train_data = datasets.ImageFolder(root=train_dir,
 val_data = datasets.ImageFolder(root=train_dir,
                             transform=transform)
 
-
+print("Covid dataset details for ResNet50 model")
 print(f"Classes: {train_data.class_to_idx}")
 print(f"Train data size : {len(train_data)}")
 print(f"Validation data size : {len(val_data)}")
@@ -75,7 +79,8 @@ train_losses, train_accuracies, val_losses, val_accuracies, model_weights, val_p
                                                                                          accuracy_function=acc_fn,
                                                                                          epoches=50,
                                                                                          early_stop=10,
-                                                                                         device=device)
+                                                                                         device=device,
+                                                                                         model_name="Covid_ResNet50_model")
 
 plot_loss_accuracy(train_losses=train_losses,
                    val_losses=val_losses,

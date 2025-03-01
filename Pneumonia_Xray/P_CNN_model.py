@@ -22,8 +22,10 @@ train_dir = ""
 
 #mean and std for transform
 mean, std = get_mean_std(train_dir)
-mean_std_path = os.path.join("..","Model_weights","mean_std.pth")
-torch.save({'mean':mean,'std':std},'mean_std.pth')
+mean_std_path = os.path.join("..","Model_weights")
+os.makedirs(mean_std_path,exist_ok=True)
+mean_std_path = os.path.join(mean_std_path,'pneumonia_mean_std.pth')
+torch.save({'mean':mean,'std':std},mean_std_path)
 
 
 #defining a transform
@@ -45,7 +47,8 @@ train_indices, val_indices = train_test_split(indices, test_size=0.2, random_sta
 train_data = Subset(data, train_indices)
 val_data = Subset(data, val_indices)
 
-print(f"Classes: {val_data.class_to_idx}")
+print("Pneumonia dataset details for CNN model")
+print(f"Classes: {data.class_to_idx}")
 print(f"Train data size : {len(train_data)}")
 print(f"Validation data size : {len(val_data)}")
 

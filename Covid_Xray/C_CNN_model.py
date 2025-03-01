@@ -21,6 +21,10 @@ val_dir = ""
 
 #mean and std for transform
 mean, std = get_mean_std(train_dir)
+mean_std_path = os.path.join("..","Model_weights")
+os.makedirs(mean_std_path,exist_ok=True)
+mean_std_path = os.path.join(mean_std_path,'covid_mean_std.pth')
+torch.save({'mean':mean,'std':std},mean_std_path)
 
 #transform
 transform = transforms.Compose([
@@ -35,6 +39,11 @@ train_data = datasets.ImageFolder(root=train_dir,
 
 val_data = datasets.ImageFolder(root=train_dir,
                             transform=transform)
+
+
+print(f"Classes: {train_data.class_to_idx}")
+print(f"Train data size : {len(train_data)}")
+print(f"Validation data size : {len(val_data)}")
 
 #dataloaders
 num_workers = 4
