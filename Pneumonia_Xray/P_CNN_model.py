@@ -18,7 +18,7 @@ from models import CNNModel_P
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #dataset path
-train_dir = ""
+train_dir = "Replace with dataset path"
 
 #mean and std for transform
 mean, std = get_mean_std(train_dir)

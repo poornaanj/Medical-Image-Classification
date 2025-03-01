@@ -15,8 +15,8 @@ from torchinfo import summary
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #dataset paths
-train_dir = ""
-val_dir = ""
+train_dir = "Replace with dataset path"
+val_dir = "Replace with dataset path"
 
 #loading the pre-trained ResNet50 model
 weights = models.ResNet50_Weights.DEFAULT
@@ -71,7 +71,7 @@ optimizer = optim.Adam(params = model.parameters(),
                              lr=0.001)
 acc_fn = Accuracy(task="multiclass", num_classes=4).to(device)
 
-train_losses, train_accuracies, val_losses, val_accuracies, model_weights, val_predictions, val_targets = train_model_with_early_stop(model=model,
+train_losses, train_accuracies, val_losses, val_accuracies, val_predictions, val_targets = train_model_with_early_stop(model=model,
                                                                                          train_dataLoader=train_dataLoader,
                                                                                          val_dataLoader=val_dataLoader,
                                                                                          loss_function=loss_fn,

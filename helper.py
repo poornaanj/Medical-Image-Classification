@@ -183,6 +183,9 @@ def binary_evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
 
 def evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
 
+  accuracy_metric = MulticlassAccuracy(num_classes=4, average='macro')
+  accuracy = accuracy_metric(predictions, target)
+
   recall_metric = MulticlassRecall(num_classes=4, average='macro')
   recall = recall_metric(predictions, target)
 
@@ -192,6 +195,7 @@ def evaluation_metrics(predictions:torch.tensor, target:torch.tensor):
   f1_metric = MulticlassF1Score(num_classes=4, average='macro')
   f1 = f1_metric(predictions,target)
 
+  print(f"Accuracy : {accuracy:.4f}")
   print(f"Recall : {recall:.4f}")
   print(f"Precision : {precision:.4f}")
   print(f"F1 score : {f1:.4f}")

@@ -1,10 +1,10 @@
-from models import CNNModel_P
+from models import CNNModel_C
 import torch
 import torch.nn as nn
 import os
 from torchvision import transforms,datasets,models
 from torch.utils.data import DataLoader
-from helper import test_model, binary_evaluation_metrics, binary_confusion_metrics
+from helper import test_model, evaluation_metrics, confusion_metrics
 
 print("Model testing for covid dataset")
 
@@ -12,12 +12,12 @@ print("Model testing for covid dataset")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #dataset path
-test_dir = ""
+test_dir = "Replace with dataset path"
 
 ### Testing with CNN model
 
 #loading stats 
-data_stats = torch.load(f=os.path.join("Model_weights","covid_mean_std.pth"))
+data_stats = torch.load(os.path.join("Model_weights","covid_mean_std.pth"))
 mean = data_stats['mean']
 std = data_stats['std']
 
@@ -41,7 +41,7 @@ c_test_dataLoader = DataLoader(dataset=c_test_data,
                             num_workers=4)
 
 #loading the model
-cnn_model = CNNModel_P().to(device)
+cnn_model = CNNModel_C().to(device)
 model_path = os.path.join("Model_weights","Covid_CNN_model.pth")
 cnn_model.load_state_dict(torch.load(f=model_path))
 
@@ -53,10 +53,10 @@ c_test_predictions, c_test_targets = test_model(model=cnn_model,
 #resutls
 print("Results for covid test dataset with CNN model")
 
-binary_evaluation_metrics(predictions=c_test_predictions,
+evaluation_metrics(predictions=c_test_predictions,
                           target=c_test_targets)
 
-binary_confusion_metrics(predictions=c_test_predictions,
+confusion_metrics(predictions=c_test_predictions,
                          target=c_test_targets,
                          fig_name="Test_covid_CNN_confusion_matrix")
 
@@ -68,7 +68,7 @@ weights = models.ResNet50_Weights.DEFAULT
 r_transform = weights.transforms()
 resnet_model = models.resnet50(weights=weights).to(device)
 resnet_model.fc = nn.Linear(in_features=resnet_model.fc.in_features,
-                     out_features=2).to(device)
+                     out_features=4).to(device)
 r_model_path = os.path.join("Model_weights","Covid_ResNet50_model.pth")
 resnet_model.load_state_dict(torch.load(f=r_model_path))
 
@@ -93,10 +93,10 @@ r_test_predictions, r_test_targets = test_model(model=resnet_model,
 #resutls
 print("Results for Covid test dataset with ResNet50 model")
 
-binary_evaluation_metrics(predictions=r_test_predictions,
+evaluation_metrics(predictions=r_test_predictions,
                           target=r_test_targets)
 
-binary_confusion_metrics(predictions=r_test_predictions,
+confusion_metrics(predictions=r_test_predictions,
                          target=r_test_targets,
                          fig_name="Test_covid_ResNet_confusion_matrix")
 

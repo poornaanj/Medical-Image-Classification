@@ -12,12 +12,12 @@ print("Model testing for pneumonia dataset")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #dataset path
-test_dir = ""
+test_dir = "Replace with dataset path"
 
 ### Testing with CNN model
 
 #loading stats 
-data_stats = torch.load(f=os.path.join("Model_weights","pneumonia_mean_std.pth"))
+data_stats = torch.load(os.path.join("Model_weights","pneumonia_mean_std.pth"))
 mean = data_stats['mean']
 std = data_stats['std']
 

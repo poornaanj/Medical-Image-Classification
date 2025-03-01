@@ -1,6 +1,5 @@
 import sys
 import os
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import torch
@@ -16,7 +15,7 @@ from helper import train_model_with_early_stop, plot_loss_accuracy, binary_evalu
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 #dataset paths
-train_dir = ""
+train_dir = "Replace with dataset path"
 
 #loading the pre-trained ResNet50 model
 weights = models.ResNet50_Weights.DEFAULT
